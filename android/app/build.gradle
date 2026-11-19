@@ -1,5 +1,7 @@
 plugins { id 'com.android.application' }
 
+def buildNumber = (System.getenv('BUILD_NUMBER') ?: '1').toInteger()
+
 android {
   namespace 'com.minebeatstudios.egoshot'
   compileSdk 34
@@ -7,8 +9,8 @@ android {
     applicationId 'com.minebeatstudios.egoshot'
     minSdk 24
     targetSdk 34
-    versionCode (System.getenv('BUILD_NUMBER') ?: '1') as int
-    versionName '0.2.' + (System.getenv('BUILD_NUMBER') ?: '1')
+    versionCode buildNumber
+    versionName "0.2.${buildNumber}"
   }
   // Clé de TEST (la clé « debug » standard d'Android, publique par nature) : toujours la même,
   // pour pouvoir installer les nouvelles versions par-dessus l'ancienne. Le Play Store demandera une vraie clé privée.
