@@ -1,0 +1,32 @@
+# Construit l'application Android (APK) d'EgoShot à chaque mise à jour du jeu,
+# et la publie ici : https://github.com/HamedKM/egoshot-play/releases/latest/download/EgoShot.apk
+name: APK Android
+on:
+  push:
+    branches: [main]
+    paths: ['index.html', 'jet_cine.glb', 'android/**', '.github/workflows/android.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
+      - uses: gradle/actions/setup-gradle@v4
+        with: { gradle-version: '8.9' }
+      - name: Le jeu dans l'application
+        run: mkdir -p android/app/src/main/assets && cp index.html jet_cine.glb android/app/src/main/assets/
+      - name: Construction
+        env: { BUILD_NUMBER: '${{ github.run_number }}' }
+        run: gradle -p android assembleRelease --no-daemon
+      - name: Publication
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: |
+          cp android/app/build/outputs/apk/release/app-release.apk EgoShot.apk
+          gh release delete apk --yes --cleanup-tag || true
+          gh release create apk EgoShot.apk --title "EgoShot pour Android (version ${{ github.run_number }})" --notes "Dernière version du jeu. Sur ton téléphone Android : télécharge EgoShot.apk puis ouvre-le pour l'installer."
+      - uses: actions/upload-artifact@v4
+        with: { name: EgoShot-apk, path: EgoShot.apk }
