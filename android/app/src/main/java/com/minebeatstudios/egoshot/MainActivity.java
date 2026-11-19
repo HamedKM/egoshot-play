@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
 import android.view.WindowManager;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
@@ -42,6 +43,7 @@ public class MainActivity extends Activity {
     s.setUserAgentString(s.getUserAgentString() + " EgoShotApp/" + ver); // le jeu sait qu'il tourne dans l'appli (et sa version)
     web.setBackgroundColor(0xff000000);
     web.setWebChromeClient(new WebChromeClient());
+    web.addJavascriptInterface(new Bridge(), "EgoShotApp"); // le jeu peut ouvrir une page dans le navigateur (connexion)
     web.setWebViewClient(new WebViewClient() {
       @Override
       public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest req) {
@@ -52,7 +54,7 @@ public class MainActivity extends Activity {
         Uri u = req.getUrl();
         if (HOST.equals(u.getHost())) return false;
         // liens extérieurs (sites, réseaux, connexion) : dans le navigateur du téléphone
-        try { startActivity(new Intent(Intent.ACTION_VIEW, u)); } catch (Exception e) { /* aucun navigateur */ }
+        openExternal(u);
         return true;
       }
     });
@@ -79,6 +81,21 @@ public class MainActivity extends Activity {
     setIntent(i);
     Uri d = i.getData();
     if (d != null && "egoshot".equals(d.getScheme())) web.loadUrl(startUrl(i));
+  }
+
+  private void openExternal(Uri u) {
+    String sc = u.getScheme();
+    if (!"https".equals(sc) && !"http".equals(sc)) return;
+    try {
+      Intent it = new Intent(Intent.ACTION_VIEW, u);
+      it.addCategory(Intent.CATEGORY_BROWSABLE);
+      it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+      startActivity(it);
+    } catch (Exception e) { /* aucun navigateur */ }
+  }
+
+  private class Bridge {
+    @JavascriptInterface public void open(final String url) { runOnUiThread(() -> openExternal(Uri.parse(url))); }
   }
 
   private void fullscreen() {
