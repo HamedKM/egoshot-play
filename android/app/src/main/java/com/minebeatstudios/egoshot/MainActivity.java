@@ -37,6 +37,9 @@ public class MainActivity extends Activity {
     s.setDatabaseEnabled(true);
     s.setMediaPlaybackRequiresUserGesture(false);
     s.setAllowFileAccess(false);
+    String ver = "?";
+    try { ver = getPackageManager().getPackageInfo(getPackageName(), 0).versionName; } catch (Exception e) { /* ignoré */ }
+    s.setUserAgentString(s.getUserAgentString() + " EgoShotApp/" + ver); // le jeu sait qu'il tourne dans l'appli (et sa version)
     web.setBackgroundColor(0xff000000);
     web.setWebChromeClient(new WebChromeClient());
     web.setWebViewClient(new WebViewClient() {
