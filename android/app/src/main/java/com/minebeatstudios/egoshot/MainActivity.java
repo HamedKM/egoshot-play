@@ -70,7 +70,8 @@ public class MainActivity extends Activity {
     Uri d = i != null ? i.getData() : null;
     if (d != null && "egoshot".equals(d.getScheme())) {
       String at = d.getQueryParameter("at"), rt = d.getQueryParameter("rt"), exp = d.getQueryParameter("exp");
-      if (at != null) return base + "#access_token=" + Uri.encode(at) + "&refresh_token=" + Uri.encode(rt == null ? "" : rt) + "&expires_in=" + (exp == null ? "3600" : Uri.encode(exp));
+      // ?login=… : adresse différente, donc vraie recharge du jeu (sinon seul le # change et la session n'est pas lue)
+      if (at != null) return base + "?login=" + System.currentTimeMillis() + "#access_token=" + Uri.encode(at) + "&refresh_token=" + Uri.encode(rt == null ? "" : rt) + "&expires_in=" + (exp == null ? "3600" : Uri.encode(exp));
     }
     return base;
   }
