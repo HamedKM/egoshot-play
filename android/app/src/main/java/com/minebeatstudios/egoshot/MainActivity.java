@@ -55,8 +55,27 @@ public class MainActivity extends Activity {
     });
     setContentView(web);
     fullscreen();
-    if (state == null) web.loadUrl("https://" + HOST + "/assets/index.html");
+    if (state == null) web.loadUrl(startUrl(getIntent()));
     else web.restoreState(state);
+  }
+
+  // egoshot://auth?at=…&rt=…&exp=… : la session revient du navigateur, le jeu la lit dans l'adresse (#access_token=…)
+  private String startUrl(Intent i) {
+    String base = "https://" + HOST + "/assets/index.html";
+    Uri d = i != null ? i.getData() : null;
+    if (d != null && "egoshot".equals(d.getScheme())) {
+      String at = d.getQueryParameter("at"), rt = d.getQueryParameter("rt"), exp = d.getQueryParameter("exp");
+      if (at != null) return base + "#access_token=" + Uri.encode(at) + "&refresh_token=" + Uri.encode(rt == null ? "" : rt) + "&expires_in=" + (exp == null ? "3600" : Uri.encode(exp));
+    }
+    return base;
+  }
+
+  @Override
+  protected void onNewIntent(Intent i) {
+    super.onNewIntent(i);
+    setIntent(i);
+    Uri d = i.getData();
+    if (d != null && "egoshot".equals(d.getScheme())) web.loadUrl(startUrl(i));
   }
 
   private void fullscreen() {
