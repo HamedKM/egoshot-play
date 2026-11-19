@@ -16,6 +16,8 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import androidx.browser.customtabs.CustomTabColorSchemeParams;
+import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.webkit.WebViewAssetLoader;
 
 // EgoShot pour Android : le jeu (index.html) est dans l'application et s'ouvre en plein écran, sans internet.
@@ -87,6 +89,16 @@ public class MainActivity extends Activity {
   private void openExternal(Uri u) {
     String sc = u.getScheme();
     if (!"https".equals(sc) && !"http".equals(sc)) return;
+    // fenêtre du navigateur qui glisse par-dessus le jeu (Google l'autorise, contrairement à la page intégrée)
+    try {
+      CustomTabsIntent tab = new CustomTabsIntent.Builder()
+          .setDefaultColorSchemeParams(new CustomTabColorSchemeParams.Builder().setToolbarColor(0xff0b1118).build())
+          .setShowTitle(true)
+          .setShareState(CustomTabsIntent.SHARE_STATE_OFF)
+          .build();
+      tab.launchUrl(this, u);
+      return;
+    } catch (Exception e) { /* pas de navigateur compatible : navigateur normal */ }
     try {
       Intent it = new Intent(Intent.ACTION_VIEW, u);
       it.addCategory(Intent.CATEGORY_BROWSABLE);
