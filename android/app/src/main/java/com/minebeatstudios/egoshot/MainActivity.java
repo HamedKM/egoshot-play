@@ -2,6 +2,7 @@ package com.minebeatstudios.egoshot;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -75,6 +76,8 @@ public class MainActivity extends Activity {
       // ?login=… : adresse différente, donc vraie recharge du jeu (sinon seul le # change et la session n'est pas lue)
       if (at != null) return base + "?login=" + System.currentTimeMillis() + "#access_token=" + Uri.encode(at) + "&refresh_token=" + Uri.encode(rt == null ? "" : rt) + "&expires_in=" + (exp == null ? "3600" : Uri.encode(exp));
     }
+    // sur une télé Android : le jeu s'ouvre directement en mode télé (QR code à scanner avec les téléphones)
+    if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_LEANBACK)) return base + "?screen=tv";
     return base;
   }
 

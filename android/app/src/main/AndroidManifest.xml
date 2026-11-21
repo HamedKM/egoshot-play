@@ -2,14 +2,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
   <uses-permission android:name="android.permission.INTERNET" />
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+  <!-- Android TV : l'appli s'installe aussi sur la télé (pas d'écran tactile, télécommande) -->
+  <uses-feature android:name="android.software.leanback" android:required="false" />
+  <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
   <application android:label="EgoShot" android:icon="@mipmap/ic_launcher" android:hardwareAccelerated="true"
-      android:theme="@style/EgoTheme" android:largeHeap="true">
+      android:theme="@style/EgoTheme" android:largeHeap="true" android:banner="@drawable/tv_banner">
     <activity android:name=".MainActivity" android:exported="true" android:screenOrientation="sensorLandscape"
         android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|keyboard|keyboardHidden|navigation|uiMode"
         android:launchMode="singleTask">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
+        <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
       </intent-filter>
       <!-- retour de la connexion (Google, e-mail…) faite dans le navigateur du téléphone -->
       <intent-filter>
