@@ -127,6 +127,9 @@ public class MainActivity extends Activity {
 
   private class Bridge {
     @JavascriptInterface public void open(final String url) { runOnUiThread(() -> openExternal(Uri.parse(url))); }
+    // micro : le jeu peut ouvrir la page des réglages d'EgoShot (Autorisations → Micro)
+    @JavascriptInterface public void appSettings() { runOnUiThread(() -> { try { startActivity(new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()))); } catch (Exception e) { /* ignoré */ } }); }
+    @JavascriptInterface public boolean micGranted() { return checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED; }
   }
 
   private void fullscreen() {
