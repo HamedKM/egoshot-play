@@ -127,7 +127,8 @@ public class MainActivity extends Activity {
 
   @Override public void onWindowFocusChanged(boolean f) { super.onWindowFocusChanged(f); if (f) fullscreen(); }
   @Override protected void onSaveInstanceState(Bundle out) { super.onSaveInstanceState(out); web.saveState(out); }
-  @Override protected void onPause() { super.onPause(); web.onPause(); } // le son et le jeu s'arrêtent quand on quitte l'appli
-  @Override protected void onResume() { super.onResume(); web.onResume(); }
+  // le son et le jeu s'arrêtent quand on quitte l'appli (le jeu coupe aussi son propre son), et reviennent au retour
+  @Override protected void onPause() { try { web.evaluateJavascript("window.__egoPause&&window.__egoPause(true)", null); } catch (Exception e) { } super.onPause(); web.onPause(); }
+  @Override protected void onResume() { super.onResume(); web.onResume(); try { web.evaluateJavascript("window.__egoPause&&window.__egoPause(false)", null); } catch (Exception e) { } }
   @Override public void onBackPressed() { if (web.canGoBack()) web.goBack(); else super.onBackPressed(); }
 }
