@@ -12,6 +12,8 @@ import android.view.WindowInsetsController;
 import android.view.WindowManager;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
+import android.webkit.PermissionRequest;
+import android.Manifest;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
@@ -27,6 +29,7 @@ import androidx.webkit.WebViewAssetLoader;
 public class MainActivity extends Activity {
   private static final String HOST = "appassets.androidplatform.net";
   private WebView web;
+  private PermissionRequest pendingMic; // demande du micro en attente de la réponse du joueur
 
   @Override
   protected void onCreate(Bundle state) {
@@ -45,7 +48,19 @@ public class MainActivity extends Activity {
     try { ver = getPackageManager().getPackageInfo(getPackageName(), 0).versionName; } catch (Exception e) { /* ignoré */ }
     s.setUserAgentString(s.getUserAgentString() + " EgoShotApp/" + ver); // le jeu sait qu'il tourne dans l'appli (et sa version)
     web.setBackgroundColor(0xff000000);
-    web.setWebChromeClient(new WebChromeClient());
+    // micro (chat vocal) : Android demande l'autorisation la première fois qu'on touche 🎤, puis s'en souvient
+    web.setWebChromeClient(new WebChromeClient() {
+      @Override public void onPermissionRequest(final PermissionRequest req) {
+        runOnUiThread(() -> {
+          boolean audio = false;
+          for (String r : req.getResources()) if (PermissionRequest.RESOURCE_AUDIO_CAPTURE.equals(r)) audio = true;
+          if (!audio) { req.deny(); return; }
+          if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) { req.grant(new String[] { PermissionRequest.RESOURCE_AUDIO_CAPTURE }); return; }
+          pendingMic = req;
+          requestPermissions(new String[] { Manifest.permission.RECORD_AUDIO }, 42);
+        });
+      }
+    });
     web.addJavascriptInterface(new Bridge(), "EgoShotApp"); // le jeu peut ouvrir une page dans le navigateur (connexion)
     web.setWebViewClient(new WebViewClient() {
       @Override
@@ -133,5 +148,12 @@ public class MainActivity extends Activity {
   // le son et le jeu s'arrêtent quand on quitte l'appli (le jeu coupe aussi son propre son), et reviennent au retour
   @Override protected void onPause() { try { web.evaluateJavascript("window.__egoPause&&window.__egoPause(true)", null); } catch (Exception e) { } super.onPause(); web.onPause(); }
   @Override protected void onResume() { super.onResume(); web.onResume(); try { web.evaluateJavascript("window.__egoPause&&window.__egoPause(false)", null); } catch (Exception e) { } }
+  @Override public void onRequestPermissionsResult(int code, String[] perms, int[] res) {
+    super.onRequestPermissionsResult(code, perms, res);
+    if (code != 42 || pendingMic == null) return;
+    if (res.length > 0 && res[0] == PackageManager.PERMISSION_GRANTED) pendingMic.grant(new String[] { PermissionRequest.RESOURCE_AUDIO_CAPTURE });
+    else pendingMic.deny();
+    pendingMic = null;
+  }
   @Override public void onBackPressed() { if (web.canGoBack()) web.goBack(); else super.onBackPressed(); }
 }
