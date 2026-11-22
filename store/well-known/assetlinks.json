@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.minebeatstudios.egoshot",
+    "sha256_cert_fingerprints": ["CC:AE:CB:C7:C7:C3:D2:AA:DD:4A:86:A4:FB:23:01:0F:95:55:4B:4A:7A:B7:DD:D1:90:53:95:45:B8:6C:71:97"]
+  }
+}]

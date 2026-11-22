@@ -26,6 +26,20 @@
         <category android:name="android.intent.category.BROWSABLE" />
         <data android:scheme="egoshot" android:host="auth" />
       </intent-filter>
+      <!-- QR code de la télé / lien d'un salon : egoshot://room/CODE ouvre directement l'appli -->
+      <intent-filter>
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="egoshot" android:host="room" />
+      </intent-filter>
+      <!-- liens du site (vérifiés plus tard avec assetlinks.json à la racine du domaine : alors ils ouvriront l'appli sans passer par le navigateur) -->
+      <intent-filter android:autoVerify="true">
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="https" android:host="hamedkm.github.io" android:pathPrefix="/egoshot-play" />
+      </intent-filter>
     </activity>
   </application>
 </manifest>

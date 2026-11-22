@@ -91,6 +91,13 @@ public class MainActivity extends Activity {
       // ?login=… : adresse différente, donc vraie recharge du jeu (sinon seul le # change et la session n'est pas lue)
       if (at != null) return base + "?login=" + System.currentTimeMillis() + "#access_token=" + Uri.encode(at) + "&refresh_token=" + Uri.encode(rt == null ? "" : rt) + "&expires_in=" + (exp == null ? "3600" : Uri.encode(exp));
     }
+    // QR code de la télé / lien d'un salon : egoshot://room/CODE?salon=1 ou https://hamedkm.github.io/egoshot-play/?room=CODE
+    if (d != null) {
+      String code = null, salon = d.getQueryParameter("salon");
+      if ("egoshot".equals(d.getScheme()) && "room".equals(d.getHost()) && d.getLastPathSegment() != null) code = d.getLastPathSegment();
+      else if ("https".equals(d.getScheme())) code = d.getQueryParameter("room");
+      if (code != null && code.matches("[A-Za-z]{4}")) return base + "?room=" + code.toUpperCase() + ("1".equals(salon) ? "&salon=1" : "");
+    }
     // sur une télé Android : le jeu s'ouvre directement en mode télé (QR code à scanner avec les téléphones)
     if (getPackageManager().hasSystemFeature(PackageManager.FEATURE_LEANBACK)) return base + "?screen=tv";
     return base;
@@ -101,7 +108,7 @@ public class MainActivity extends Activity {
     super.onNewIntent(i);
     setIntent(i);
     Uri d = i.getData();
-    if (d != null && "egoshot".equals(d.getScheme())) web.loadUrl(startUrl(i));
+    if (d != null && ("egoshot".equals(d.getScheme()) || "https".equals(d.getScheme()))) web.loadUrl(startUrl(i)); // connexion ou salon (QR code)
   }
 
   private void openExternal(Uri u) {
