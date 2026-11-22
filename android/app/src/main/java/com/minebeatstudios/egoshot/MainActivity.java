@@ -129,6 +129,8 @@ public class MainActivity extends Activity {
     @JavascriptInterface public void open(final String url) { runOnUiThread(() -> openExternal(Uri.parse(url))); }
     // micro : le jeu peut ouvrir la page des réglages d'EgoShot (Autorisations → Micro)
     @JavascriptInterface public void appSettings() { runOnUiThread(() -> { try { startActivity(new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()))); } catch (Exception e) { /* ignoré */ } }); }
+    // numéro de version de l'appli installée : le jeu le compare à la dernière version publiée
+    @JavascriptInterface public int versionCode() { try { return getPackageManager().getPackageInfo(getPackageName(), 0).versionCode; } catch (Exception e) { return 0; } }
     @JavascriptInterface public boolean micGranted() { return checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED; }
   }
 
