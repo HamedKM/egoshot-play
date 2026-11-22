@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta name="egobuild" content="1795305605760">
+<meta name="egobuild" content="1795305943057">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="EgoShot"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="manifest" href="manifest.webmanifest">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
@@ -415,6 +415,7 @@ body.shake #stage{animation:shake .45s .45s}
 .lcode{color:#24D7FF;letter-spacing:6px;font-size:34px}
 .lplayers{display:flex;flex-direction:column;gap:6px;margin:8px 0}
 #lobby{z-index:6}
+#notifbox{z-index:40} /* invitations, amis, notifications : toujours au-dessus du salon et des menus */
 #tapstart{position:fixed;inset:0;top:var(--vt,0px);left:var(--vl,0px);width:var(--vw,100%);height:var(--vh,100%);right:auto;bottom:auto;z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;cursor:pointer;
   background:radial-gradient(ellipse at 50% 60%,rgba(255,106,0,.25),rgba(7,16,24,.92) 60%),rgba(7,16,24,.85);transition:opacity .45s}
 #tapstart.out{opacity:0;pointer-events:none}
