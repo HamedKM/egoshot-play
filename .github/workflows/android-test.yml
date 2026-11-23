@@ -1,12 +1,15 @@
-# Construit l'appli Android de TEST (« EgoShot Test ») à partir de la version de test du jeu (dossier test/).
-# Elle a son propre identifiant : elle s'installe À CÔTÉ de l'appli normale, sans la remplacer.
+# Construit l'appli Android de TEST (« EgoShot Test »). Elle a son propre identifiant : elle s'installe À CÔTÉ de l'appli normale.
 # Lien de téléchargement : https://github.com/HamedKM/egoshot-play/releases/download/apk-test/EgoShot-Test.apk
+#
+# Elle n'est reconstruite que lorsque sa partie NATIVE change (dossiers android/ et test/android/) : le contenu du jeu,
+# lui, est téléchargé par l'appli à chaque ouverture (mise à jour « à chaud », sans réinstaller).
+# Signature : clé privée recréée depuis le secret TEST_KEY_PASSPHRASE (voir test/android/testkey.py) ; elle n'est écrite nulle part.
 # L'appli normale (android.yml, publication « apk ») n'est pas touchée.
 name: APK Android de test
 on:
   push:
     branches: [main]
-    paths: ['test/index.html', 'test/android/**', '.github/workflows/android-test.yml']
+    paths: ['android/**', 'test/android/**', '.github/workflows/android-test.yml']
   workflow_dispatch:
 permissions:
   contents: write
@@ -24,16 +27,39 @@ jobs:
         run: |
           cp -r android /tmp/android-test
           python3 test/android/patch.py /tmp/android-test
-          mkdir -p /tmp/android-test/app/src/main/assets
           cp test/index.html test/jet_cine.glb test/livekit-client.umd.js /tmp/android-test/app/src/main/assets/
-      - name: Construction
+          cp test/update.txt /tmp/android-test/app/src/main/assets/embedded.txt
+      - name: Clé de signature de test
+        env: { TEST_KEY_PASSPHRASE: '${{ secrets.TEST_KEY_PASSPHRASE }}' }
+        run: |
+          if [ -n "$TEST_KEY_PASSPHRASE" ]; then
+            pip install -q cryptography
+            export TEST_KS_PASS="$(openssl rand -hex 24)"
+            python3 test/android/testkey.py "$RUNNER_TEMP/test.p12" | tee /tmp/key.txt
+            echo "TEST_KS=$RUNNER_TEMP/test.p12" >> "$GITHUB_ENV"; echo "::add-mask::$TEST_KS_PASS"; echo "TEST_KS_PASS=$TEST_KS_PASS" >> "$GITHUB_ENV"
+            echo "KEY_KIND=clé de test privée" >> "$GITHUB_ENV"
+          else
+            echo "::warning::Secret TEST_KEY_PASSPHRASE absent : signature avec l'ancienne clé provisoire (publique)."
+            echo "KEY_KIND=CLÉ PROVISOIRE (secret TEST_KEY_PASSPHRASE absent)" >> "$GITHUB_ENV"
+          fi
+      - name: Construction (APK + fichier AAB pour Google Play)
         env: { BUILD_NUMBER: '${{ github.run_number }}' }
-        run: gradle -p /tmp/android-test assembleRelease --no-daemon
+        run: gradle -p /tmp/android-test assembleRelease bundleRelease --no-daemon
       - name: Publication en pré-version (le lien de l'appli normale ne change pas)
         env: { GH_TOKEN: '${{ github.token }}' }
         run: |
           cp /tmp/android-test/app/build/outputs/apk/release/app-release.apk EgoShot-Test.apk
-          gh release delete apk-test --yes --cleanup-tag || true
-          gh release create apk-test EgoShot-Test.apk --prerelease --latest=false --title "EgoShot Test pour Android (version ${{ github.run_number }})" --notes "Version de TEST, pour les testeurs. Elle s'installe à côté de l'appli EgoShot normale. Sur ton téléphone Android : télécharge EgoShot-Test.apk puis ouvre-le pour l'installer."
+          cp /tmp/android-test/app/build/outputs/bundle/release/app-release.aab EgoShot-Test.aab
+          printf 'code=%s\nname=0.2.%s-test\nsize=%s\nsha256=%s\nkey=%s\n' "${{ github.run_number }}" "${{ github.run_number }}" "$(stat -c%s EgoShot-Test.apk)" "$(sha256sum EgoShot-Test.apk | cut -d' ' -f1)" "$KEY_KIND" > version.txt
+          cat version.txt; cat /tmp/key.txt 2>/dev/null || true
+          TITLE="EgoShot Test pour Android (version ${{ github.run_number }})"
+          NOTES="Version de TEST, pour les testeurs. Elle s'installe à côté de l'appli EgoShot normale et se met à jour toute seule. Signature : $KEY_KIND."
+          if gh release view apk-test >/dev/null 2>&1; then
+            gh release upload apk-test EgoShot-Test.apk EgoShot-Test.aab --clobber
+            gh release upload apk-test version.txt --clobber
+            gh release edit apk-test --title "$TITLE" --notes "$NOTES" --prerelease
+          else
+            gh release create apk-test EgoShot-Test.apk EgoShot-Test.aab version.txt --prerelease --latest=false --title "$TITLE" --notes "$NOTES"
+          fi
       - uses: actions/upload-artifact@v4
-        with: { name: EgoShot-Test-apk, path: EgoShot-Test.apk }
+        with: { name: EgoShot-Test, path: "EgoShot-Test.a*" }

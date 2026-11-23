@@ -27,4 +27,30 @@ def java(s):
     a = '    @JavascriptInterface public void open(final String url)'
     return need(s, a, share + a, 1)
 edit('app/src/main/java/com/minebeatstudios/egoshot/MainActivity.java', java)
+
+# ---- mises à jour sans réinstaller + mesures du suivi des tests (TestKit.java, Updater.java, update.html) ----
+import shutil, os
+here = os.path.dirname(os.path.abspath(__file__))
+for f in ('TestKit.java', 'Updater.java'): shutil.copy(f'{here}/java/{f}', f'{root}/app/src/main/java/com/minebeatstudios/egoshot/{f}')
+os.makedirs(f'{root}/app/src/main/res/xml', exist_ok=True); shutil.copy(f'{here}/res/xml/test_paths.xml', f'{root}/app/src/main/res/xml/test_paths.xml')
+os.makedirs(f'{root}/app/src/main/assets', exist_ok=True); shutil.copy(f'{here}/assets/update.html', f'{root}/app/src/main/assets/update.html')
+
+def java2(s):
+    s = need(s, 'new WebViewAssetLoader.AssetsPathHandler(this)', 'TestKit.handler(this)', 1)
+    a = '    web.addJavascriptInterface(new Bridge(), "EgoShotApp");'
+    s = need(s, a, a + '\n    final TestKit kit = new TestKit(this, web);\n    web.addJavascriptInterface(kit.bridge(), "EgoShotTest"); // appli de test : mises à jour et mesures', 1)
+    return need(s, 'if (state == null) web.loadUrl(startUrl(getIntent()));', 'if (state == null) kit.boot(startUrl(getIntent())); // écran de mise à jour, puis le jeu', 1)
+edit('app/src/main/java/com/minebeatstudios/egoshot/MainActivity.java', java2)
+
+def manifest2(s):
+    s = need(s, '  <uses-permission android:name="android.permission.INTERNET" />', '  <uses-permission android:name="android.permission.INTERNET" />\n  <!-- appli de test : elle installe elle-même ses mises à jour -->\n  <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />', 1)
+    return need(s, '  </application>', '    <provider android:name="androidx.core.content.FileProvider" android:authorities="com.minebeatstudios.egoshot.test.files" android:exported="false" android:grantUriPermissions="true">\n      <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/test_paths" />\n    </provider>\n  </application>', 1)
+edit('app/src/main/AndroidManifest.xml', manifest2)
+
+def gradle2(s):
+    # signature : clé de test privée (recréée depuis la phrase secrète) si elle est fournie, sinon l'ancienne clé publique
+    s = need(s, "test { storeFile file('test.keystore'); storePassword 'android'; keyAlias 'androiddebugkey'; keyPassword 'android' }",
+             "test { storeFile file(System.getenv('TEST_KS') ?: 'test.keystore'); storePassword(System.getenv('TEST_KS') ? System.getenv('TEST_KS_PASS') : 'android'); keyAlias(System.getenv('TEST_KS') ? 'egoshottest' : 'androiddebugkey'); keyPassword(System.getenv('TEST_KS') ? System.getenv('TEST_KS_PASS') : 'android') }", 1)
+    return need(s, "  implementation 'androidx.webkit:webkit:1.11.0'", "  implementation 'androidx.webkit:webkit:1.11.0'\n  implementation 'androidx.core:core:1.13.1' // installation des mises à jour (FileProvider)", 1)
+edit('app/build.gradle', gradle2)
 print('projet Android de test prêt')
