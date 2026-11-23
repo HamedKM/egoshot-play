@@ -1,0 +1,44 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EgoShot — Supprimer mon compte / Delete my account</title>
+<style>
+:root{color-scheme:dark}body{margin:0;background:#0b1118;color:#e8edf2;font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+main{max-width:760px;margin:0 auto;padding:20px 18px 60px}header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;border-bottom:1px solid #243444;padding-bottom:10px;margin-bottom:8px}
+.logo{font:900 26px Impact,'Arial Black',sans-serif;letter-spacing:.5px}.logo b{color:#FF6A00}.lang a{color:#9CA8B4;text-decoration:none;border:1px solid #2f4152;border-radius:8px;padding:4px 10px;margin-left:4px;font-size:14px}.lang a.on{background:#24D7FF;color:#071018;border-color:#24D7FF}
+h1{font-size:26px;margin:18px 0 4px}h2{font-size:19px;margin:26px 0 6px;color:#FFB21A}p,li{color:#d5dde6}a{color:#24D7FF}small,.muted{color:#8b97a4}
+table{border-collapse:collapse;width:100%;font-size:14.5px;margin:8px 0}td,th{border:1px solid #243444;padding:7px 9px;text-align:left;vertical-align:top}th{background:#121a23}
+.box{background:#121a23;border:1px solid #243444;border-radius:12px;padding:10px 14px;margin:10px 0}nav.docs{margin-top:34px;border-top:1px solid #243444;padding-top:12px;font-size:14px}
+[data-l]{display:none}body.fr [data-l=fr],body.en [data-l=en]{display:block}
+</style></head><body><main>
+<header><div class="logo">EGO<b>SHOT</b></div><div class="lang"><a href="?lang=fr" id="lfr">Français</a><a href="?lang=en" id="len">English</a></div></header>
+<div data-l="fr">
+<h1>Supprimer mon compte EgoShot</h1>
+<p>Tu peux supprimer ton compte EgoShot et les données qui y sont liées à tout moment, gratuitement.</p>
+<h2>Dans le jeu (immédiat)</h2>
+<div class="box"><ol><li>Ouvre EgoShot et connecte-toi.</li><li>Touche <b>⚙ Paramètres</b>, puis <b>Compte et confidentialité</b>.</li><li>Touche <b>Supprimer mon compte</b>, coche la case de confirmation, puis <b>Supprimer définitivement</b>.</li></ol><p class="muted">Le même lien se trouve aussi dans ta fiche de joueur (touche ton alias dans le menu).</p></div>
+<h2>Sans ouvrir le jeu</h2>
+<p>Écris à <a href="mailto:contact@minebeatstudios.com?subject=Suppression%20de%20compte%20EgoShot">contact@minebeatstudios.com</a> depuis l’adresse e-mail de ton compte, en indiquant ton alias. Nous supprimons le compte sous 30 jours au plus tard.</p>
+<h2>Ce qui est effacé</h2>
+<ul><li>ton compte et ta connexion (Google, Apple, Facebook ou e-mail) ;</li><li>ton alias et ton pays ;</li><li>tes statistiques, tes points et ta place au classement ;</li><li>tes pièces, tes skins, tes amis et tes invitations ;</li><li>l’historique de tes parties et de tes entraînements.</li></ul>
+<h2>Ce qui est conservé, sans ton nom</h2>
+<ul><li>le simple fait qu’une partie a eu lieu (date, nombre de joueurs), sans alias ni identifiant ;</li><li>les rapports de plantage, anonymes, effacés au bout de 60 jours ;</li><li>si le compte était suspendu pour triche ou abus : une empreinte chiffrée et irréversible de l’adresse e-mail, pour empêcher la réinscription.</li></ul>
+<p>La suppression est définitive : rien ne peut être récupéré ensuite.</p>
+</div>
+<div data-l="en">
+<h1>Delete my EgoShot account</h1>
+<p>You can delete your EgoShot account and the data linked to it at any time, free of charge.</p>
+<h2>In the game (immediate)</h2>
+<div class="box"><ol><li>Open EgoShot and sign in.</li><li>Tap <b>⚙ Settings</b>, then <b>Account &amp; privacy</b>.</li><li>Tap <b>Delete my account</b>, tick the confirmation box, then <b>Delete permanently</b>.</li></ol><p class="muted">The same link is also in your player card (tap your alias in the menu).</p></div>
+<h2>Without opening the game</h2>
+<p>Write to <a href="mailto:contact@minebeatstudios.com?subject=EgoShot%20account%20deletion">contact@minebeatstudios.com</a> from the e-mail address of your account, giving your alias. We delete the account within 30 days at most.</p>
+<h2>What is erased</h2>
+<ul><li>your account and sign-in (Google, Apple, Facebook or e-mail);</li><li>your alias and country;</li><li>your statistics, points and leaderboard position;</li><li>your coins, skins, friends and invitations;</li><li>your match and training history.</li></ul>
+<h2>What is kept, without your name</h2>
+<ul><li>the bare fact that a match took place (date, number of players), with no alias or identifier;</li><li>anonymous crash reports, erased after 60 days;</li><li>if the account was suspended for cheating or abuse: an encrypted, irreversible fingerprint of the e-mail address, to prevent re-registration.</li></ul>
+<p>Deletion is final: nothing can be recovered afterwards.</p>
+</div>
+<nav class="docs"><a href="privacy.html" class="k">Confidentialité / Privacy</a> · <a href="terms.html" class="k">Conditions / Terms</a> · <a href="delete-account.html" class="k">Supprimer mon compte / Delete my account</a><br><small>Minebeat Studios · <a href="https://minebeatstudios.com">minebeatstudios.com</a></small></nav>
+</main><script>
+var q=new URLSearchParams(location.search).get('lang'),l=q==='en'||q==='fr'?q:((navigator.language||'en').slice(0,2)==='fr'?'fr':'en');
+document.body.className=l;document.documentElement.lang=l;document.getElementById('l'+l).className='on';
+[].forEach.call(document.querySelectorAll('a.k'),function(a){a.href=a.getAttribute('href')+'?lang='+l});
+</script></body></html>
