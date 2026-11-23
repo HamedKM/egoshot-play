@@ -1,0 +1,35 @@
+# Récupère la bibliothèque du chat vocal (client LiveKit, licence Apache 2.0) et la range dans le dépôt (dossier vendor/).
+# À relancer à la main seulement pour changer de version.
+name: Bibliothèque du chat vocal
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/vendor-livekit.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  vendor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with: { node-version: '20' }
+      - name: Téléchargement
+        run: |
+          set -e
+          V=2.15.7
+          mkdir -p /tmp/lk vendor && cd /tmp/lk
+          npm pack "livekit-client@$V" || npm pack livekit-client@2
+          tar xzf livekit-client-*.tgz
+          ls -la package/dist | head -30
+          cp package/dist/livekit-client.umd.js "$GITHUB_WORKSPACE/vendor/livekit-client.umd.js"
+          cp package/LICENSE "$GITHUB_WORKSPACE/vendor/livekit-client.LICENSE.txt"
+          node -e "console.log(require('./package/package.json').version)" > "$GITHUB_WORKSPACE/vendor/livekit-client.version.txt"
+      - name: Rangement dans le dépôt
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add vendor
+          git diff --cached --quiet || git commit -m "Bibliothèque du chat vocal : livekit-client $(cat vendor/livekit-client.version.txt)"
+          git push
