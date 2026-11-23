@@ -29,7 +29,7 @@ jobs:
       - name: Construction
         env: { BUILD_NUMBER: '${{ github.run_number }}' }
         run: gradle -p /tmp/android-test assembleRelease --no-daemon
-      - name: Publication (pré-version : le lien de l'appli normale ne change pas)
+      - name: Publication en pré-version (le lien de l'appli normale ne change pas)
         env: { GH_TOKEN: '${{ github.token }}' }
         run: |
           cp /tmp/android-test/app/build/outputs/apk/release/app-release.apk EgoShot-Test.apk
