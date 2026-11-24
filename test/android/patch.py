@@ -43,7 +43,7 @@ def java2(s):
 edit('app/src/main/java/com/minebeatstudios/egoshot/MainActivity.java', java2)
 
 def manifest2(s):
-    s = need(s, '  <uses-permission android:name="android.permission.INTERNET" />', '  <uses-permission android:name="android.permission.INTERNET" />\n  <!-- appli de test : elle installe elle-même ses mises à jour -->\n  <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />', 1)
+    s = need(s, '  <uses-permission android:name="android.permission.INTERNET" />', '  <uses-permission android:name="android.permission.INTERNET" />\n  <!-- appli de test : elle installe elle-même ses mises à jour -->\n  <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />\n  <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />\n  <uses-permission android:name="android.permission.VIBRATE" />', 1)
     return need(s, '  </application>', '    <provider android:name="androidx.core.content.FileProvider" android:authorities="com.minebeatstudios.egoshot.test.files" android:exported="false" android:grantUriPermissions="true">\n      <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/test_paths" />\n    </provider>\n  </application>', 1)
 edit('app/src/main/AndroidManifest.xml', manifest2)
 

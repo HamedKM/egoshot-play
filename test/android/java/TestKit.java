@@ -138,7 +138,26 @@ public final class TestKit {
       if ("install".equals(what) && "apk".equals(phase)) choice = "install";
       else if ("later".equals(what) && "apk".equals(phase)) choice = "later";
       else if ("retry".equals(what)) act.runOnUiThread(TestKit.this::install);
+      else if ("reboot".equals(what) && !booting && target != null) act.runOnUiThread(() -> TestKit.this.boot(target)); // nouvelle version du jeu : on repasse par l'écran de mise à jour
       else if ("skip".equals(what)) { cancel = true; if ("apk".equals(phase)) choice = "later"; if ("stay".equals(choice) || !"dl".equals(phase)) { new Thread(() -> { try { Thread.sleep(300); } catch (Exception e) { } go(); }).start(); } }
+    }
+    // ----- notifications Android (début / fin du banc d'essai) : avec son et vibration -----
+    @JavascriptInterface public void askNotif() {
+      act.runOnUiThread(() -> { try { if (Build.VERSION.SDK_INT >= 33 && act.checkSelfPermission("android.permission.POST_NOTIFICATIONS") != android.content.pm.PackageManager.PERMISSION_GRANTED) act.requestPermissions(new String[] { "android.permission.POST_NOTIFICATIONS" }, 77); } catch (Exception e) { /* ignoré */ } });
+    }
+    @JavascriptInterface public void notify(final String title, final String text) {
+      act.runOnUiThread(() -> {
+        try {
+          android.app.NotificationManager nm = (android.app.NotificationManager) act.getSystemService(Context.NOTIFICATION_SERVICE);
+          if (Build.VERSION.SDK_INT >= 26) { android.app.NotificationChannel ch = new android.app.NotificationChannel("tests", "Tests EgoShot", android.app.NotificationManager.IMPORTANCE_HIGH); ch.enableVibration(true); nm.createNotificationChannel(ch); }
+          Intent open = new Intent(act, act.getClass()); open.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+          android.app.PendingIntent pi = android.app.PendingIntent.getActivity(act, 0, open, android.app.PendingIntent.FLAG_IMMUTABLE | android.app.PendingIntent.FLAG_UPDATE_CURRENT);
+          android.app.Notification.Builder b = Build.VERSION.SDK_INT >= 26 ? new android.app.Notification.Builder(act, "tests") : new android.app.Notification.Builder(act);
+          b.setSmallIcon(android.R.drawable.ic_dialog_info).setContentTitle(title).setContentText(text).setStyle(new android.app.Notification.BigTextStyle().bigText(text)).setAutoCancel(true).setContentIntent(pi).setDefaults(android.app.Notification.DEFAULT_ALL);
+          nm.notify(7701, b.build());
+        } catch (Exception e) { /* notifications refusées : tant pis */ }
+        try { android.os.Vibrator v = (android.os.Vibrator) act.getSystemService(Context.VIBRATOR_SERVICE); if (v != null) v.vibrate(new long[] { 0, 400, 200, 400 }, -1); } catch (Exception e) { /* ignoré */ }
+      });
     }
     // ----- suivi des tests -----
     @JavascriptInterface public String info() {
@@ -164,6 +183,7 @@ public final class TestKit {
         }
         int th = 0; if (Build.VERSION.SDK_INT >= 29) { PowerManager pm = (PowerManager) act.getSystemService(Context.POWER_SERVICE); if (pm != null) th = pm.getCurrentThermalStatus(); }
         o.put("thermal", th);
+        PowerManager pm2 = (PowerManager) act.getSystemService(Context.POWER_SERVICE); if (pm2 != null) o.put("saver", pm2.isPowerSaveMode());
         return o.toString();
       } catch (Exception e) { return "{}"; }
     }
